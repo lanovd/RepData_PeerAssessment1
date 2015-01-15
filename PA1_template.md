@@ -11,7 +11,7 @@ output:
 Clean old data, prepare for file download and setting home directory
 
 ```r
-rm(list=ls())
+rm(list = ls())
 setInternet2(use = TRUE)
 setwd("E:/R")
 ```
@@ -19,17 +19,18 @@ setwd("E:/R")
 Donwload file from Internet and read it 
 
 ```r
- if (!file.exists("repdata-data-activity.zip")) { 
-     fileUrl1 <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
-     download.file(url=fileUrl1, destfile="repdata-data-activity.zip")
-   unzip("repdata-data-activity.zip") 
- }
+if (!file.exists("repdata-data-activity.zip")) {
+    fileUrl1 <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+    download.file(url = fileUrl1, destfile = "repdata-data-activity.zip")
+    unzip("repdata-data-activity.zip")
+}
 ```
 
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
 ```r
-activity <- read.csv("activity.csv", colClasses = c("numeric", "character", "numeric"))
+activity <- read.csv("activity.csv", colClasses = c("numeric", "character", 
+    "numeric"))
 suppressMessages(require(lattice))
 activity["date"] <- as.Date(activity$date, "%Y-%m-%d")
 ```
@@ -41,7 +42,8 @@ activity["date"] <- as.Date(activity$date, "%Y-%m-%d")
 ```r
 steps_per_day <- aggregate(steps ~ date, data = activity, sum)
 
-hist(steps_per_day$steps, main = paste("Total Number of Steps Each Day"), col="blue", xlab="Number of Steps", ylab = "Days")
+hist(steps_per_day$steps, main = paste("Total Number of Steps Each Day"), col = "blue", 
+    xlab = "Number of Steps", ylab = "Days")
 ```
 
 <img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
@@ -76,7 +78,8 @@ steps_per_interval <- aggregate(steps ~ interval, activity, mean)
 
 library(lattice)
 
-xyplot(steps_per_interval$steps ~ steps_per_interval$interval, main="Average Steps per Day by Interval",xlab="Interval", ylab="Steps",type="l")
+xyplot(steps_per_interval$steps ~ steps_per_interval$interval, main = "Average Steps per Day by Interval", 
+    xlab = "Interval", ylab = "Steps", type = "l")
 ```
 
 <img src="figure/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" />
@@ -104,7 +107,7 @@ which.max(steps_per_interval$steps)
 The starting minute for this internal with max number of steps
 
 ```r
-steps_per_interval[which.max(steps_per_interval$steps),1]
+steps_per_interval[which.max(steps_per_interval$steps), 1]
 ```
 
 ```
@@ -131,13 +134,13 @@ My strategy is to use the mean for that 5-minute interval to fill each missing v
 ```r
 activityNew <- activity
 
-for (i in 1:nrow(activityNew)){
-  if (is.na(activityNew$steps[i])){
-    interval_val <- activityNew$interval[i]
-    row_id <- which(steps_per_interval$interval == interval_val)
-    steps_val <- steps_per_interval$steps[row_id]
-    activityNew$steps[i] <- steps_val
-  }
+for (i in 1:nrow(activityNew)) {
+    if (is.na(activityNew$steps[i])) {
+        interval_val <- activityNew$interval[i]
+        row_id <- which(steps_per_interval$interval == interval_val)
+        steps_val <- steps_per_interval$steps[row_id]
+        activityNew$steps[i] <- steps_val
+    }
 }
 
 head(activityNew)
@@ -159,7 +162,8 @@ head(activityNew)
 ```r
 table_date_steps_imputed <- aggregate(steps ~ date, activityNew, sum)
 
-hist(table_date_steps_imputed$steps, main="(Imputed) Total Number of Steps Each Day", col="blue", xlab="Number of Steps", ylab = "Days")
+hist(table_date_steps_imputed$steps, main = "(Imputed) Total Number of Steps Each Day", 
+    col = "blue", xlab = "Number of Steps", ylab = "Days")
 ```
 
 <img src="figure/unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" style="display: block; margin: auto;" />
@@ -191,13 +195,14 @@ median(table_date_steps_imputed$steps)
 ```r
 activityNew$day <- weekdays(activityNew$date)
 activityNew$day_type <- c("weekday")
-for (i in 1:nrow(activityNew)){
-  if (activityNew$day[i] == "Saturday" || activityNew$day[i] == "Sunday"){
-    activityNew$day_type[i] <- "weekend"
-  }
+for (i in 1:nrow(activityNew)) {
+    if (activityNew$day[i] == "Saturday" || activityNew$day[i] == "Sunday") {
+        activityNew$day_type[i] <- "weekend"
+    }
 }
 activityNew$day_type <- as.factor(activityNew$day_type)
-table_interval_steps_imputed <- aggregate(steps ~ interval+day_type, activityNew, mean)
+table_interval_steps_imputed <- aggregate(steps ~ interval + day_type, activityNew, 
+    mean)
 ```
 
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
@@ -206,7 +211,9 @@ table_interval_steps_imputed <- aggregate(steps ~ interval+day_type, activityNew
 ```r
 library(lattice)
 
-xyplot(table_interval_steps_imputed$steps ~ table_interval_steps_imputed$interval|table_interval_steps_imputed$day_type, main="Average Steps per Day by Interval",xlab="Interval", ylab="Steps",layout=c(1,2), type="l")
+xyplot(table_interval_steps_imputed$steps ~ table_interval_steps_imputed$interval | 
+    table_interval_steps_imputed$day_type, main = "Average Steps per Day by Interval", 
+    xlab = "Interval", ylab = "Steps", layout = c(1, 2), type = "l")
 ```
 
 <img src="figure/unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" style="display: block; margin: auto;" />
